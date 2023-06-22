@@ -1,0 +1,111 @@
+train_file: "ttbar_train.h5"
+val_file: "ttbar_val.h5"
+test_file: "ttbar_test.h5"
+matchability: true
+n_events: null
+same_scaler_everything: false
+
+network_without_units: &network_without_units
+  regularization: 0
+  activation: gelu
+  batch_norm: false
+  dropout: 0
+  layer_norm: true
+
+
+graph_dense_net_units: &graph_dense_net_units
+  units:
+    - 256
+    - 256
+    - 64
+
+attention_units: &attention_units
+  units:
+    - 32
+    - 32
+
+regression_units: &regression_units
+  units:
+    - 64
+    - 64
+
+
+
+initial_graph_block:
+  n_iterations: 2
+  k_neighbours: 15
+  pooling_edges: att
+  dense_config_edges:
+    <<: [*network_without_units, *graph_dense_net_units]
+  dense_config_nodes:
+    <<: [*network_without_units, *graph_dense_net_units]
+  attention_network:
+    <<: [*network_without_units, *attention_units]
+
+initialization_w:
+  first_w_initialization: att
+  first_attention_architecture:
+    <<: [*network_without_units, *attention_units]
+  second_w_initialization: att
+  second_attention_architecture:
+    <<: [*network_without_units, *attention_units]
+  regression_net:
+    <<: [*network_without_units, *regression_units]
+    out: 3
+
+initialization_top:
+  jets_pooling: "att"
+  attention_net_architecture:
+    <<: [*network_without_units, *attention_units]
+  regression_net:
+    <<: [*network_without_units, *regression_units]
+    out: 3
+
+Topograph:
+  n_iterations: 4
+  edge_net_architecture:
+    <<: [*network_without_units, *graph_dense_net_units]
+  node_net_architecture:
+    <<: [*network_without_units, *graph_dense_net_units]
+  pooling: "att"
+  attention_net_architecture:
+    <<: [*network_without_units, *attention_units]
+  full_connections_jets: false
+  full_connections_ws: false
+  full_connections_tops: false
+  full_connections_w_top: false
+  w_w_interaction: false
+  top_top_interaction: false
+
+persistent_edges: true
+
+edge_classification:
+  <<: *network_without_units
+  units:
+    - 128
+    - 128
+    - 128
+
+regression_net:
+  <<: [*network_without_units, *regression_units]
+  out: 3
+
+
+batch_size: 256
+n_epochs: 100
+verbose: 2
+
+classification_loss:
+  weighted: true
+
+use_flavour_tagging: true
+
+regression_loss: mae
+
+lr_schedule:
+  name: "cosine"
+  config:
+    initial_learning_rate: 0.001
+    first_decay_steps: 2
+    m_mul: 1
+    t_mul: 1
