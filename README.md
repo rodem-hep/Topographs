@@ -11,6 +11,6 @@ Public repository for a minimum working example of the topographs project.
     * Make sure to adjust the paths in the configuration files to point to the data.
 
 ## Usage
-To train a model, simply run ```python train.py --config configs/config_full.yaml --log_dir log_dir```. This will train a model on complete events only saving all outputs in the directory ```log_dir``` which will be created.
+To train a model, simply run ```python train.py configs/config_full.yaml log_dir```. This will train a model on complete events only saving all outputs in the directory ```log_dir``` which will be created.
 Alternatively you can use ```configs/config_partial.yaml``` to train including partial events.
 
